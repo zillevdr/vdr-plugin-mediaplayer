@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <string>
+#include <stdlib.h>
 
 using std::ifstream;
 using std::string;

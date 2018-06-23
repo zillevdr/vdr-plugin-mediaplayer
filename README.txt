@@ -25,7 +25,7 @@ Requirements:
 
 Install:
 
-- git clone https://github.com/zillevdr/vdr-mediaplayer.git
+- git clone https://github.com/zillevdr/vdr-plugin-mediaplayer.git
 - cd vdr-mediaplayer
 - make install
 - change vdr commandline ... -P "mediaplayer --startpath=/path/to/files" ...
@@ -36,6 +36,5 @@ Commandline option for the plugin:
 
 Todo:
 
-- jump in file for and backward
 - other media files (depending from output device)
 - ID3Tag
