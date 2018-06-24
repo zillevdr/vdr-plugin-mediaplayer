@@ -21,7 +21,7 @@
 
 #include <fstream>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 
 using std::ifstream;
 using std::string;
@@ -166,6 +166,16 @@ void cMediaPlayer::PlayFile(const char *path)
 
   AVPacket packet;
   av_init_packet(&packet);
+
+  int secs  = format->duration / AV_TIME_BASE;
+  int us    = format->duration % AV_TIME_BASE;
+  int mins  = secs / 60;
+  secs %= 60;
+  int hours = mins / 60;
+  mins %= 60;
+  esyslog("Mediaplayer: Play %s codec: %s duration %02d:%02d:%02d.%02d\n",
+    format->url, format->iformat->name, hours, mins, secs,
+                      (100 * us) / AV_TIME_BASE);
 
   while (next_buffer != max_buffers + 1) {
     bufs[next_buffer].buff = NULL;
