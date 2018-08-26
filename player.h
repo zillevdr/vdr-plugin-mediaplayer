@@ -27,6 +27,7 @@ private:
     string Path;
     string File;
     string Folder;
+    string SubFolder;
   };
   struct MediaFile MediaFiles[5000];
   int CurrentFile;

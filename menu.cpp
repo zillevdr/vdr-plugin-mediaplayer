@@ -150,6 +150,7 @@ void cMediaPlayerMenu::PlayMenu(void)
 
   for (int i = 0; i <= (pPlayer->LastFile); i++) {
     string NewString = pPlayer->MediaFiles[i].Folder
+      + " - " + pPlayer->MediaFiles[i].SubFolder
       + " - " + pPlayer->MediaFiles[i].File;
     Add(new cOsdItem(NewString.c_str()), (i == pPlayer->CurrentFile));
   }

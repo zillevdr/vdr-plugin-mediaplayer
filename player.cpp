@@ -85,11 +85,16 @@ void cMediaPlayer::ReadPL(void)
     getline(f, s);
     if (s.size() && s.compare(1, 1, "/")) {
       MediaFiles[i].Path = s;
+
       MediaFiles[i].File = MediaFiles[i].Path.substr(MediaFiles[i].Path.find_last_of("/")+1,
         string::npos);
-      string NewString = MediaFiles[i].Path.substr(0,MediaFiles[i].Path.find_last_of("/"));
-      MediaFiles[i].Folder = NewString.substr(NewString.find_last_of("/")+1,
-        string::npos);
+
+      string SubString = MediaFiles[i].Path.substr(0, MediaFiles[i].Path.find_last_of("/"));
+      MediaFiles[i].SubFolder = SubString.substr(SubString.find_last_of("/")+1, string::npos);
+
+      string FolderString = MediaFiles[i].Path.substr(0, SubString.find_last_of("/"));
+      MediaFiles[i].Folder = FolderString.substr(FolderString.find_last_of("/")+1, string::npos);
+
       i++;
     }
   }
