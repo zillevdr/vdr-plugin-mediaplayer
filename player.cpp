@@ -178,12 +178,19 @@ void cMediaPlayer::PlayFile(const char *path)
   secs %= 60;
   int hours = mins / 60;
   mins %= 60;
-  esyslog("Mediaplayer: Play %s codec: %s duration %02d:%02d:%02d.%02d\n",
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(57,89,100)
+  dsyslog("Mediaplayer: Play %s codec: %s duration %02d:%02d:%02d.%02d\n",
     format->url, format->iformat->name, hours, mins, secs,
                       (100 * us) / AV_TIME_BASE);
+#else
+  dsyslog("Mediaplayer: Play %s codec: %s duration %02d:%02d:%02d.%02d\n",
+    format->filename, format->iformat->name, hours, mins, secs,
+                      (100 * us) / AV_TIME_BASE);
+#endif
 
   while (next_buffer != max_buffers + 1) {
     bufs[next_buffer].buff = NULL;
+    bufs[next_buffer].size = 0;
     next_buffer++;
   }
   next_buffer = 0;
@@ -193,6 +200,10 @@ void cMediaPlayer::PlayFile(const char *path)
     err = av_read_frame(format, &packet);
     if (err == 0) {
       // make header + data
+      if (bufs[next_buffer].size && bufs[next_buffer].size != (size_t)packet.size + 16) {
+        free(bufs[next_buffer].buff);
+        bufs[next_buffer].buff = NULL;
+      }
       if (!bufs[next_buffer].buff) {
         bufs[next_buffer].buff = (unsigned char *) malloc(sizeof(header) + packet.size);
       }
