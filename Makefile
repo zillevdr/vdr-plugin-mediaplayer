@@ -32,10 +32,10 @@ export CXXFLAGS = $(call PKGCFG,cxxflags)
 ### Make it standard
 
 override CXXFLAGS += $(_CFLAGS) $(DEFINES) $(INCLUDES) \
-     -g3 -W -Wall -Wextra -Winit-self -Werror=overloaded-virtual
-     #-g0 -ggdb
+     -W -Wall -Wextra -Winit-self -Werror=overloaded-virtual
+     #-g3 -ggdb
 override CFLAGS	  += $(_CFLAGS) $(DEFINES) $(INCLUDES) \
-     -g3 -W -Wall -Wextra -Winit-self
+     -W -Wall -Wextra -Winit-self
     
 ### The version number of VDR's plugin API:
 

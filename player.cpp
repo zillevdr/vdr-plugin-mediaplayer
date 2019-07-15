@@ -129,7 +129,7 @@ void cMediaPlayer::PlayFile(const char *path)
     unsigned char *buff;
     size_t size;
   };
-  int max_buffers = 500;
+  int max_buffers = 150;
   int next_buffer = 0;
   struct buf bufs[max_buffers];
   int err = 0;
@@ -188,7 +188,7 @@ void cMediaPlayer::PlayFile(const char *path)
                       (100 * us) / AV_TIME_BASE);
 #endif
 
-  while (next_buffer != max_buffers + 1) {
+  while (next_buffer != max_buffers) {
     bufs[next_buffer].buff = NULL;
     bufs[next_buffer].size = 0;
     next_buffer++;
@@ -200,17 +200,18 @@ void cMediaPlayer::PlayFile(const char *path)
     err = av_read_frame(format, &packet);
     if (err == 0) {
       // make header + data
-      if (bufs[next_buffer].size && bufs[next_buffer].size != (size_t)packet.size + 16) {
+      if (bufs[next_buffer].buff && (bufs[next_buffer].size != (size_t)packet.size + sizeof(header))) {
         free(bufs[next_buffer].buff);
         bufs[next_buffer].buff = NULL;
+        bufs[next_buffer].size = 0;
       }
       if (!bufs[next_buffer].buff) {
-        bufs[next_buffer].buff = (unsigned char *) malloc(sizeof(header) + packet.size);
+        bufs[next_buffer].buff = (unsigned char *) malloc(packet.size + sizeof(header));
+        bufs[next_buffer].size = packet.size + sizeof(header);
       }
 
       memcpy(bufs[next_buffer].buff, header, sizeof(header));
       memcpy(bufs[next_buffer].buff + sizeof(header), packet.data, packet.size);
-      bufs[next_buffer].size = packet.size + 16;
       bufs[next_buffer].buff[4] = ((bufs[next_buffer].size - 6) >> 8) & 0xFF;
       bufs[next_buffer].buff[5] = (bufs[next_buffer].size - 6) & 0xFF;
       bufs[next_buffer].buff[8] = 7; // pes_header_data_length
@@ -218,13 +219,12 @@ void cMediaPlayer::PlayFile(const char *path)
 repeat:
       DevicePoll(oPoller, 100);
       if (PlayPes(bufs[next_buffer].buff, bufs[next_buffer].size, false) <= 0) {
-        // vorher sollte ein sleep von einem Frame Dauer eingebaut werden!!!!
         usleep(packet.duration * AV_TIME_BASE * format->streams[0]->time_base.num 
           / format->streams[0]->time_base.den);
         goto repeat;
       }
 
-      if (next_buffer == max_buffers)
+      if (next_buffer == max_buffers - 1)
         next_buffer = 0;
       else next_buffer++;
 
@@ -250,7 +250,7 @@ repeat:
   if (StopFile)
     DeviceClear();
 
-  next_buffer = max_buffers;
+  next_buffer = max_buffers - 1;
   while (next_buffer > -1) {
     free(bufs[next_buffer].buff);
     next_buffer--;
